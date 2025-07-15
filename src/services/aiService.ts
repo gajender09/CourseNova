@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(import.meta.env.REACT_APP_GEMINI_API_KEY);
 
 export interface CourseModule {
   id: string;
@@ -48,7 +48,7 @@ export async function generateCourseContent(
 ): Promise<CourseContent> {
   try {
     // Generate course structure using Gemini AI
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     const prompt = `Create a comprehensive course about "${topic}" for ${audience} at ${difficulty} level. 
     
@@ -119,7 +119,7 @@ async function fetchArticles(topic: string) {
         sortBy: 'relevancy',
         pageSize: 5,
         language: 'en',
-        apiKey: import.meta.env.VITE_NEWS_API_KEY
+        apiKey: import.meta.env.REACT_APP_NEWS_API_KEY
       }
     });
 
@@ -142,7 +142,7 @@ async function fetchVideos(topic: string) {
         q: `${topic} tutorial`,
         type: 'video',
         maxResults: 5,
-        key: import.meta.env.VITE_YOUTUBE_API_KEY
+        key: import.meta.env.REACT_APP_YOUTUBE_API_KEY
       }
     });
 
@@ -162,8 +162,8 @@ export async function generateCourseImage(topic: string): Promise<string> {
   try {
     const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
       params: {
-        key: import.meta.env.VITE_GOOGLE_API_KEY,
-        cx: import.meta.env.VITE_GOOGLE_CSE_ID,
+        key: import.meta.env.REACT_APP_GOOGLE_API_KEY,
+        cx: import.meta.env.REACT_APP_GOOGLE_CSE_ID,
         q: `${topic} course education`,
         searchType: 'image',
         num: 1,
