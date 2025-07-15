@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { BookOpen, Target, List, Video, FileText, Check, Sparkles, Clock, BarChart3 } from 'lucide-react';
+import { BookOpen, Target, List, Video, FileText, Check, Sparkles, Clock, BarChart3, Brain } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { generateCourseContent, generateCourseImage, type CourseContent } from '../services/aiService';
+import { generateCourseContent, type CourseContent } from '../services/aiService';
 
 export function CourseGenerator() {
   const { user } = useAuthStore();
@@ -22,9 +22,7 @@ export function CourseGenerator() {
     
     try {
       const content = await generateCourseContent(topic, audience, difficulty);
-      const imageUrl = await generateCourseImage(topic);
-      
-      const course = await saveCourse({ ...content, image_url: imageUrl });
+      const course = await saveCourse(content);
       setCourseContent(content);
       setCourseId(course.id);
     } catch (err: any) {
@@ -35,7 +33,7 @@ export function CourseGenerator() {
     }
   };
 
-  const saveCourse = async (content: CourseContent & { image_url: string }) => {
+  const saveCourse = async (content: CourseContent) => {
     try {
       const courseData = {
         title: content.title,
@@ -86,97 +84,107 @@ export function CourseGenerator() {
     }
   };
 
+  const resetForm = () => {
+    setTopic('');
+    setAudience('');
+    setDifficulty('Beginner');
+    setCourseContent(null);
+    setCourseId(null);
+    setEnrolled(false);
+    setError(null);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
           <Sparkles className="w-8 h-8 text-purple-600" />
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Create Your Course</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">AI Course Generator</h1>
         <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-          Transform your expertise into a comprehensive learning experience with AI-powered course generation
+          Create comprehensive, professional courses in minutes using advanced AI technology
         </p>
       </div>
 
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-gray-700">
-        <form onSubmit={generateCourse} className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-lg font-medium text-gray-200 mb-3">
-                Course Topic
-              </label>
-              <input
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="e.g., Machine Learning, Web Development, Digital Marketing"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-lg font-medium text-gray-200 mb-3">
-                Target Audience
-              </label>
-              <input
-                type="text"
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                placeholder="e.g., Beginners, Intermediate Developers, Business Professionals"
-                required
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-lg font-medium text-gray-200 mb-3">
-              Difficulty Level
-            </label>
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-            >
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-          </div>
-
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white mr-3"></div>
-                Generating your course...
+      {!courseContent ? (
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-gray-700">
+          <form onSubmit={generateCourse} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-lg font-medium text-gray-200 mb-3">
+                  Course Topic
+                </label>
+                <input
+                  type="text"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="e.g., Machine Learning, Web Development, Digital Marketing"
+                  required
+                />
               </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <Sparkles className="w-5 h-5 mr-2" />
-                Generate Course
+              <div>
+                <label className="block text-lg font-medium text-gray-200 mb-3">
+                  Target Audience
+                </label>
+                <input
+                  type="text"
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  placeholder="e.g., Beginners, Intermediate Developers, Business Professionals"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-lg font-medium text-gray-200 mb-3">
+                Difficulty Level
+              </label>
+              <select
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700/50 text-white rounded-xl border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              >
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                {error}
               </div>
             )}
-          </button>
-        </form>
-      </div>
 
-      {courseContent && (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-4 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white mr-3"></div>
+                  Generating your course...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Generate Course with AI
+                </div>
+              )}
+            </button>
+          </form>
+        </div>
+      ) : (
         <div className="space-y-8">
           {/* Course Header */}
           <div className="bg-gradient-to-r from-purple-600/20 to-purple-800/20 rounded-2xl p-8 border border-purple-500/20">
             <div className="flex flex-col md:flex-row gap-6">
               <img
-                src={courseContent.image_url || `https://source.unsplash.com/400x300/?${encodeURIComponent(topic)}`}
+                src={courseContent.image_url}
                 alt={courseContent.title}
                 className="w-full md:w-48 h-48 object-cover rounded-xl"
               />
@@ -197,35 +205,48 @@ export function CourseGenerator() {
                     <BookOpen className="w-5 h-5 mr-2" />
                     <span>{courseContent.modules.length} Modules</span>
                   </div>
+                  <div className="flex items-center text-purple-300">
+                    <Brain className="w-5 h-5 mr-2" />
+                    <span>{courseContent.quiz?.length || 0} Quiz Questions</span>
+                  </div>
                 </div>
 
-                {!enrolled ? (
+                <div className="flex gap-4">
+                  {!enrolled ? (
+                    <button
+                      onClick={enrollInCourse}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-medium flex items-center gap-2"
+                    >
+                      <Check className="w-5 h-5" />
+                      Enroll Now
+                    </button>
+                  ) : (
+                    <div className="bg-green-500/20 border border-green-500/30 text-green-400 px-6 py-3 rounded-xl inline-flex items-center">
+                      <Check className="w-5 h-5 mr-2" />
+                      Successfully Enrolled!
+                    </div>
+                  )}
+                  
                   <button
-                    onClick={enrollInCourse}
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all font-medium flex items-center gap-2"
+                    onClick={resetForm}
+                    className="bg-gray-700 text-white px-8 py-3 rounded-xl hover:bg-gray-600 transition-all font-medium"
                   >
-                    <Check className="w-5 h-5" />
-                    Enroll Now
+                    Create Another Course
                   </button>
-                ) : (
-                  <div className="bg-green-500/20 border border-green-500/30 text-green-400 px-6 py-3 rounded-xl inline-flex items-center">
-                    <Check className="w-5 h-5 mr-2" />
-                    Successfully Enrolled!
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Course Content Grid */}
+          {/* Course Preview */}
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Modules */}
+            {/* Modules Preview */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
               <div className="flex items-center mb-6">
                 <BookOpen className="w-6 h-6 text-purple-500 mr-3" />
                 <h3 className="text-2xl font-semibold text-white">Course Modules</h3>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
                 {courseContent.modules.map((module, index) => (
                   <div key={module.id} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
                     <div className="flex items-start justify-between mb-2">
@@ -237,37 +258,53 @@ export function CourseGenerator() {
                       </span>
                     </div>
                     <p className="text-gray-300 mb-3">{module.description}</p>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-gray-400">Learning Objectives:</p>
-                      <ul className="list-disc list-inside text-gray-300 space-y-1">
-                        {module.objectives.map((objective, i) => (
-                          <li key={i} className="text-sm">{objective}</li>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-400">Subtopics:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {module.subtopics?.map((subtopic, i) => (
+                          <span key={i} className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                            {subtopic.title}
+                          </span>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Glossary */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-              <div className="flex items-center mb-6">
-                <List className="w-6 h-6 text-purple-500 mr-3" />
-                <h3 className="text-2xl font-semibold text-white">Glossary</h3>
+            {/* Resources Preview */}
+            <div className="space-y-6">
+              {/* Articles */}
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center mb-4">
+                  <FileText className="w-6 h-6 text-purple-500 mr-3" />
+                  <h3 className="text-xl font-semibold text-white">Articles ({courseContent.resources.articles.length})</h3>
+                </div>
+                <div className="space-y-3">
+                  {courseContent.resources.articles.slice(0, 3).map((article, index) => (
+                    <div key={index} className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
+                      <h4 className="text-purple-400 font-medium text-sm line-clamp-1">{article.title}</h4>
+                      <p className="text-gray-400 text-xs">{article.source}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {courseContent.glossary.map((item, index) => (
-                  <div key={index} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600">
-                    <dt className="text-purple-400 font-medium mb-1">{item.term}</dt>
-                    <dd className="text-gray-300 mb-2">{item.definition}</dd>
-                    {item.example && (
-                      <div className="text-sm text-gray-400 italic">
-                        Example: {item.example}
-                      </div>
-                    )}
-                  </div>
-                ))}
+
+              {/* Videos */}
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
+                <div className="flex items-center mb-4">
+                  <Video className="w-6 h-6 text-purple-500 mr-3" />
+                  <h3 className="text-xl font-semibold text-white">Videos ({courseContent.resources.videos.length})</h3>
+                </div>
+                <div className="space-y-3">
+                  {courseContent.resources.videos.slice(0, 3).map((video, index) => (
+                    <div key={index} className="bg-gray-700/50 rounded-lg p-3 border border-gray-600">
+                      <h4 className="text-purple-400 font-medium text-sm line-clamp-1">{video.title}</h4>
+                      <p className="text-gray-400 text-xs">{video.channelTitle}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -293,54 +330,6 @@ export function CourseGenerator() {
                   <p className="text-gray-300">{step}</p>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Resources */}
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Articles */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-              <div className="flex items-center mb-6">
-                <FileText className="w-6 h-6 text-purple-500 mr-3" />
-                <h3 className="text-2xl font-semibold text-white">Suggested Articles</h3>
-              </div>
-              <div className="space-y-4">
-                {courseContent.resources.articles.map((article, index) => (
-                  <div key={index} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600 hover:border-purple-500/50 transition-colors">
-                    <h4 className="text-purple-400 font-medium mb-2 hover:text-purple-300 cursor-pointer">
-                      {article.title}
-                    </h4>
-                    <p className="text-gray-300 text-sm">{article.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Videos */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
-              <div className="flex items-center mb-6">
-                <Video className="w-6 h-6 text-purple-500 mr-3" />
-                <h3 className="text-2xl font-semibold text-white">Suggested Videos</h3>
-              </div>
-              <div className="space-y-4">
-                {courseContent.resources.videos.map((video, index) => (
-                  <div key={index} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600 hover:border-purple-500/50 transition-colors">
-                    <div className="flex gap-3">
-                      <img
-                        src={video.thumbnail}
-                        alt={video.title}
-                        className="w-16 h-12 object-cover rounded"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-purple-400 font-medium mb-1 hover:text-purple-300 cursor-pointer line-clamp-2">
-                          {video.title}
-                        </h4>
-                        <p className="text-gray-400 text-sm">{video.duration}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
