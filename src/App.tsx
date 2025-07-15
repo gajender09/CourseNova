@@ -40,7 +40,7 @@ function App() {
                 <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-2xl font-bold text-white">AICADEMY</span>
+                <span className="text-2xl font-bold text-white">CourseNova</span>
               </div>
 
               {/* Desktop Navigation */}
