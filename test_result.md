@@ -264,11 +264,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Gemini LLM Integration Setup"
-    - "Course Generation API"
-    - "Subtopic Content Generation API"
-    - "Quiz Generation and Submission API"
-    - "Database Models and Storage"
+    - "Frontend testing (if needed)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
