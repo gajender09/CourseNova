@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,7 +9,7 @@ import {
   ChartBarIcon,
   AcademicCapIcon,
   UserIcon,
-  LogoutIcon,
+  ArrowLeftOnRectangleIcon,
   HomeIcon,
   PlusIcon,
   PlayIcon,
@@ -459,7 +460,7 @@ const Dashboard = () => {
                   onClick={logout}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <LogoutIcon className="w-5 h-5" />
+                  <ArrowLeftOnRectangleIcon className="w-6 h-6 text-red-500" />
                 </button>
               </div>
             </div>
